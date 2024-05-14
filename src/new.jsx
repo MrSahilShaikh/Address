@@ -768,6 +768,8 @@ const ContributionDetails = () => {
     const [amount, setAmount] = useState('');
     const [index, setIndex] = useState('');
     const [contributorAddress, setContributorAddress] = useState('');
+    const [addresses, setAddresses] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     // Connect to MetaMask
     const connectMetaMask = async () => {
         if (window.ethereum) {
@@ -803,18 +805,40 @@ const ContributionDetails = () => {
     };
 
     // Function to fetch contributor address at the given index
-    async function getContributorAddress() {
-        if (!contract || !web3) {
-            console.error('Web3 or contract instance not initialized');
-            return;
-        }
+    // async function getContributorAddress() {
+    //     if (!contract || !web3) {
+    //         console.error('Web3 or contract instance not initialized');
+    //         return;
+    //     }
+    //     try {
+    //         const result = await contract.methods.contributorsList(index).call();
+    //         setContributorAddress(result);
+    //     } catch (error) {
+    //         console.error('Error fetching contributor address:', error);
+    //     }
+    // }
+
+    const getAllContributorAddresses = async () => {
+        if (!contract || !web3 || isLoading) return;
+
+        setIsLoading(true);
+
         try {
-            const result = await contract.methods.contributorsList(index).call();
-            setContributorAddress(result);
+            const contributorsCount = await contract.methods.numOfContributors().call();
+            const addresses = [];
+            for (let i = 0; i < contributorsCount; i++) {
+                const address = await contract.methods.contributorsList(i).call();
+                addresses.push(address);
+            }
+            console.log(addresses);
+            setAddresses(addresses);
         } catch (error) {
-            console.error('Error fetching contributor address:', error);
+            console.error('Error fetching contributor addresses:', error);
+        } finally {
+            setIsLoading(false);
         }
-    }
+    };
+
 
     return (
         
@@ -829,7 +853,7 @@ const ContributionDetails = () => {
         </header>
 
         <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
-          <div style={{ marginBottom: '10px' }}>
+          {/* <div style={{ marginBottom: '10px' }}>
           <label>Enter Index:</label>
             <input
               type="text"
@@ -845,7 +869,24 @@ const ContributionDetails = () => {
               <h2>Contributor Address at Index {index}:</h2>
               <p>{contributorAddress}</p>
             </div>
-          )}
+          )} */}
+
+<div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
+                    <button style={{ marginBottom: '10px', padding: '5px 10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer' }} onClick={getAllContributorAddresses} disabled={!contract || !web3 || isLoading}>Get All Contributor Addresses</button>
+                    {isLoading && <p>Loading...</p>}
+                    <div>
+                        {addresses.length > 0 && (
+                            <div>
+                                <h2>All Contributor Addresses:</h2>
+                                <ul>
+                                    {addresses.map((address, index) => (
+                                        <li key={index}>{address}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
           <div style={{ marginBottom: '10px' }}>
             <label>Enter Address:</label>
