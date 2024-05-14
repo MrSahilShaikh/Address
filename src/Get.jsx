@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import Web3 from 'web3';
+import { CSVLink } from 'react-csv'; // Import ReactCSV
 
 const usdtraisingContractABI = [
 	{
@@ -804,11 +805,9 @@ const ContributionDetails = () => {
             for (let i = 0; i < contributorsCount; i++) {
                 const contributorAddress = await contract.methods.contributorsList(i).call();
                 const weiAmount = await contract.methods.contributions(contributorAddress).call({ from: account });
-                // amounts[contributorAddress] = weiAmount.toString(); // Convert to string
                 const etherAmount = web3.utils.fromWei(weiAmount, 'ether');
                 amounts[contributorAddress] = etherAmount.toString(); // Convert to string
             }
-			console.log(amounts);
             setAmounts(amounts);
         } catch (error) {
             console.error('Error fetching contributor amounts:', error);
@@ -816,6 +815,12 @@ const ContributionDetails = () => {
             setIsLoading(false);
         }
     };
+
+    // CSV data for ReactCSV
+    const csvData = Object.entries(amounts).map(([address, amount]) => ({
+        Address: address,
+        'Contribution Amount (Ether)': amount,
+    }));
 
     return (
         <div>
@@ -825,6 +830,12 @@ const ContributionDetails = () => {
                         <p style={{ marginRight: '10px', fontWeight: 'bold' }}>Connected Wallet Address: {account}</p>
                         <button style={{ padding: '5px 10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer' }} onClick={connectMetaMask}>Connect MetaMask</button>
                     </div>
+                    {/* Download button */}
+                    <CSVLink data={csvData} filename={"contributions.csv"}>
+                        <button style={{ padding: '5px 10px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer' }} disabled={Object.keys(amounts).length === 0}>
+                            Download CSV
+                        </button>
+                    </CSVLink>
                 </header>
 
                 <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
