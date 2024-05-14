@@ -1,6 +1,7 @@
 // import { useState } from 'react'
-import ContributionDetails from './new'
+
 // import Add from './Address'
+import ContributionDetails from './Get'
 import './App.css'
 
 function App() {

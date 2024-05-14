@@ -760,7 +760,7 @@ const usdtraisingContractABI = [
 
 const ContractAddress = '0xB940db20C8A97efbA110F4eaa607B2029C3aa441'; // Replace with your contract address
 
-const ContributionDetails = () => {
+const ContributionDetail = () => {
     const [web3, setWeb3] = useState(null);
     const [contract, setContract] = useState(null);
     const [account, setAccount] = useState('');
@@ -903,4 +903,4 @@ const ContributionDetails = () => {
     );
 };
 
-export default ContributionDetails;
+export default ContributionDetail;
